@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import CybersecuritySidebar from "./screens/sidebar";
+import Dashboard from "./components/dashboard";
+import ThreatScanner from "./components/threatscanner";
+import CyberSafetyGuide from "./components/cybersecurity";
+import EmergencyHelp from "./components/emergency";
+import Settings from "./components/settings";
+import { CssBaseline } from "@mui/material";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <CssBaseline />
+      <div
+        style={{
+          display: "flex",
+          height: "100vh",
+          overflow: "hidden",
+          backgroundColor: "#1a2634",
+          color: "#ffffff",
+        }}
+      >
+        <CybersecuritySidebar
+          isExpanded={isExpanded}
+          setIsExpanded={setIsExpanded}
+        />
+        <main
+          style={{
+            flexGrow: 1,
+            padding: "20px",
+            overflowY: "auto",
+            overflowX: "hidden",
+            backgroundColor: "#1a2634",
+            transition: "background-color 0.3s ease",
+          }}
+        >
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/threat-scanner" element={<ThreatScanner />} />
+            <Route path="/safety-guide" element={<CyberSafetyGuide />} />
+            <Route path="/emergency" element={<EmergencyHelp />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </main>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
-
-export default App
+export default App;
