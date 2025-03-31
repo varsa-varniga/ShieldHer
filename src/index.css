@@ -57,3 +57,11 @@
     @apply bg-background text-foreground;
   }
 }
+body {
+  overflow: hidden; /* Disable body scroll */
+}
+
+.container {
+  max-height: 100vh; /* Ensure it doesn't exceed the viewport */
+  overflow-y: auto; /* Allow vertical scrolling */
+}
