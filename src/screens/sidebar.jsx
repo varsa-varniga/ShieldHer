@@ -17,7 +17,9 @@ import {
   IconButton,
   Box,
   Typography,
+  Divider,
 } from "@mui/material";
+import logo from "../assets/logo.png"
 
 const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
   const navigate = useNavigate();
@@ -47,21 +49,22 @@ const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
           color: "#FFFFFF",
           boxShadow: "4px 0 10px rgba(0,0,0,0.1)",
           borderRight: "none",
-          paddingTop: 2,
         },
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop:'10px'}}>
         {isExpanded && (
-          <Typography
-            variant="h6"
-            sx={{ fontFamily: "Rajdhani, sans-serif", fontWeight: "bold", letterSpacing: 2 }}
-          >
-            CyberShield
-          </Typography>
+          <img
+            src={logo}
+            alt="logo"
+            style={{ borderRadius: '6px', margin:'15px' }}
+            // className="rounded-lg shadow-2xl mx-auto w-full max-w-4xl"
+            width={150}
+            height={40}
+          />
         )}
         <IconButton onClick={() => setIsExpanded(!isExpanded)}>
-          <MenuIcon sx={{ color: "white" }} />
+          <MenuIcon sx={{ color: "white", fontSize:"60px", padding:2 }} />
         </IconButton>
       </Box>
 

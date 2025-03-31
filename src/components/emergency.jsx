@@ -63,8 +63,8 @@
 // export default EmergencyHelp;
 import React from "react";
 
-function emergency() {
+function Emergency() {
   return <div>emergency</div>;
 }
 
-export default emergency;
+export default Emergency;
