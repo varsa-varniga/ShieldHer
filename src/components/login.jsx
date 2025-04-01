@@ -12,15 +12,18 @@ import {
   Link,
   Alert
 } from '@mui/material';
-import { Visibility, VisibilityOff, Google } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { GoogleLogin } from '@react-oauth/google';
 import { Link as RouterLink } from 'react-router-dom';
 import authService from '../api/auth';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -42,6 +45,37 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setGoogleLoading(true);
+    setError('');
+    
+    try {
+      // Fixed function name
+      const decoded = jwtDecode(credentialResponse.credential);
+      const { email, name, picture } = decoded;
+
+      const response = await authService.googleLogin({
+        email,
+        name,
+        picture,
+        credential: credentialResponse.credential
+      });
+
+      if (response) {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.message || 'Google login failed. Please try again.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+
+  const handleGoogleError = () => {
+    setError('Google login failed. Please try again.');
   };
 
   return (
@@ -139,7 +173,7 @@ const Login = () => {
           />
 
           <Box sx={{ textAlign: 'right', mt: 1 }}>
-            <Link component={RouterLink} to="/forgotPassword" variant="body2" sx={{ color: 'whitesmoke' }}>
+            <Link component={RouterLink} to="/forgot-password" variant="body2" sx={{ color: 'whitesmoke' }}>
               Forgot password?
             </Link>
           </Box>
@@ -168,23 +202,18 @@ const Login = () => {
             }
           }}>OR</Divider>
 
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<Google />}
-            sx={{ 
-              mb: 2, 
-              py: 1.5,
-              color: 'whitesmoke',
-              borderColor: 'whitesmoke',
-              borderRadius: '10px',
-              '&:hover': {
-                borderColor: 'whitesmoke'
-              }
-            }}
-          >
-            Continue with Google
-          </Button>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+              size="large"
+              text="continue_with"
+              shape="rectangular"
+              width="400"
+              locale="en_US"
+            />
+          </Box>
 
           <Box sx={{ textAlign: 'center', mt: 2 }}>
             <Typography variant="body2" sx={{ color: 'whitesmoke' }}>

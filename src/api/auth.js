@@ -68,6 +68,21 @@ const login = async (userData) => {
   }
 };
 
+
+// Google login
+const googleLogin = async (userData) => {
+  try {
+    const response = await authAxios.post('/google-login', userData);
+    if (response.data?.token) {
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
+    }
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
 // Send OTP for password reset
 const sendOTP = async (email) => {
   try {
@@ -124,6 +139,7 @@ const getCurrentUser = () => {
 const authService = {
   register,
   login,
+  googleLogin,
   logout,
   sendOTP,
   verifyOTP,
