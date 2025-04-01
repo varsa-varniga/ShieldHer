@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff, Google } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
+import authService from '../api/auth';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,26 +33,12 @@ const Login = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+      const response = await authService.login(formData);
+      if (response) {
+        navigate('/dashboard');
       }
-      
-      // Store token and user data
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Redirect to dashboard or home
-      navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,8 +46,18 @@ const Login = () => {
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 4, boxShadow: 3, borderRadius: 2 }}>
-        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+      <Box sx={{ 
+        marginTop: 8, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        padding: 4, 
+        boxShadow: 3, 
+        borderRadius: 2,
+        border: '1px solid grey',
+        backgroundColor: 'transparent'
+      }}>
+        <Typography component="h1" variant="h5" sx={{ mb: 3, color: 'white' }}>
           Login
         </Typography>
         
@@ -78,6 +75,23 @@ const Login = () => {
             autoFocus
             value={formData.email}
             onChange={handleChange}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'whitesmoke',
+                  borderRadius: '10px'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'whitesmoke'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'whitesmoke'
+              },
+              '& .MuiInputBase-input': {
+                color: 'white'
+              }
+            }}
           />
 
           <TextField
@@ -91,6 +105,23 @@ const Login = () => {
             autoComplete="current-password"
             value={formData.password}
             onChange={handleChange}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'whitesmoke',
+                  borderRadius: '10px'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'whitesmoke'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'whitesmoke'
+              },
+              '& .MuiInputBase-input': {
+                color: 'white'
+              }
+            }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -98,6 +129,7 @@ const Login = () => {
                     aria-label="toggle password visibility"
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
+                    sx={{ color: 'whitesmoke' }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -107,7 +139,7 @@ const Login = () => {
           />
 
           <Box sx={{ textAlign: 'right', mt: 1 }}>
-            <Link component={RouterLink} to="/forgot-password" variant="body2">
+            <Link component={RouterLink} to="/forgotPassword" variant="body2" sx={{ color: 'whitesmoke' }}>
               Forgot password?
             </Link>
           </Box>
@@ -117,26 +149,47 @@ const Login = () => {
             fullWidth
             variant="contained"
             disabled={loading}
-            sx={{ mt: 3, mb: 2, py: 1.5 }}
+            sx={{ 
+              mt: 3, 
+              mb: 2, 
+              py: 1.5,
+              borderRadius: '10px',
+              fontWeight: 600
+            }}
           >
             {loading ? 'Logging in...' : 'Login'}
           </Button>
 
-          <Divider sx={{ my: 3 }}>OR</Divider>
+          <Divider sx={{ 
+            my: 3,
+            color: 'whitesmoke',
+            '&::before, &::after': {
+              borderColor: 'whitesmoke'
+            }
+          }}>OR</Divider>
 
           <Button
             fullWidth
             variant="outlined"
             startIcon={<Google />}
-            sx={{ mb: 2, py: 1.5 }}
+            sx={{ 
+              mb: 2, 
+              py: 1.5,
+              color: 'whitesmoke',
+              borderColor: 'whitesmoke',
+              borderRadius: '10px',
+              '&:hover': {
+                borderColor: 'whitesmoke'
+              }
+            }}
           >
             Continue with Google
           </Button>
 
           <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ color: 'whitesmoke' }}>
               Don't have an account?{' '}
-              <Link component={RouterLink} to="/signup" sx={{ fontWeight: 'bold' }}>
+              <Link component={RouterLink} to="/signup" sx={{ fontWeight: 'bold', color: 'white' }}>
                 Sign up
               </Link>
             </Typography>

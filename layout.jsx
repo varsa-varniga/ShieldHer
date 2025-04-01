@@ -14,6 +14,9 @@ import Settings from "./src/components/settings";
 import Header from "./src/screens/header";
 import Login from "./src/components/login";
 import SignUp from "./src/components/signUp";
+import ForgotPassword from "./src/components/forgotPassword";
+import VerifyOTP from "./src/components/verifyOTP";
+import ResetPassword from "./src/components/resetPassword";
 
 function Layout({ isExpanded, setIsExpanded }) {
     const location = useLocation();
@@ -30,7 +33,11 @@ function Layout({ isExpanded, setIsExpanded }) {
              {location.pathname === "/" && (
                 <Header/>
             )}
-            {location.pathname !== "/" && location.pathname !== "/login" && location.pathname !== "/signup" && (
+            {location.pathname !== "/" && 
+            location.pathname !== "/login" && 
+            location.pathname !== "/signup" &&
+            location.pathname !== "/forgotPassword" &&
+             (
                 <CybersecuritySidebar
                     isExpanded={isExpanded}
                     setIsExpanded={setIsExpanded}
@@ -50,6 +57,9 @@ function Layout({ isExpanded, setIsExpanded }) {
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/signup" element={<SignUp />}/>
+                    <Route path="/forgotPassword" element={<ForgotPassword/>}/>
+                    <Route path="/verify-otp" element={<VerifyOTP/>}/>
+                    <Route path="/resetPassword" element={<ResetPassword/>}/>
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/threat-scanner" element={<ThreatScanner />} />

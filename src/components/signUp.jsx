@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -8,30 +9,31 @@ import {
   IconButton,
   Button,
   Divider,
-  Link
+  Link,
+  Alert
 } from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  Google
-} from '@mui/icons-material';
+import { Visibility, VisibilityOff, Google } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
+import authService from '../api/auth';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [apiError, setApiError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,7 +51,6 @@ const SignUp = () => {
       [name]: value
     });
 
-    // Clear error when user types
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -61,14 +62,14 @@ const SignUp = () => {
   const validateForm = () => {
     let valid = true;
     const newErrors = {
-      name: '',
+      username: '',
       email: '',
       password: '',
       confirmPassword: ''
     };
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
       valid = false;
     }
 
@@ -97,11 +98,24 @@ const SignUp = () => {
     return valid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Handle signup logic here
-      console.log('Signup submitted:', formData);
+    setApiError('');
+    
+    if (!validateForm()) return;
+    
+    setLoading(true);
+    
+    try {
+      const { confirmPassword, ...userData } = formData;
+      const response = await authService.register(userData);
+      if (response) {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setApiError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,34 +123,37 @@ const SignUp = () => {
     <Container maxWidth="sm">
       <Box
         sx={{
-            marginTop:2,
+          marginTop: 2,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           padding: 4,
           boxShadow: 3,
           border: '1px solid grey',
-          borderRadius: 2
+          borderRadius: 2,
+          backgroundColor: 'transparent'
         }}
       >
         <Typography component="h1" variant="h5" sx={{ mb: 3, color: 'whitesmoke' }}>
           Sign Up
         </Typography>
 
+        {apiError && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{apiError}</Alert>}
+
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
           <TextField
             margin="normal"
             required
             fullWidth
-            id="name"
-            label="Full Name"
-            name="name"
-            autoComplete="name"
+            id="username"
+            label="Username"
+            name="username"
+            autoComplete="username"
             autoFocus
-            value={formData.name}
+            value={formData.username}
             onChange={handleChange}
-            error={!!errors.name}
-            helperText={errors.name}
+            error={!!errors.username}
+            helperText={errors.username}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
@@ -295,15 +312,23 @@ const SignUp = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2, mb: 1, py: 1.5, borderRadius: '7px', fontWeight: 600 }}
+            disabled={loading}
+            sx={{ 
+              mt: 2, 
+              mb: 1, 
+              py: 1.5, 
+              borderRadius: '10px', 
+              fontWeight: 600 
+            }}
           >
-            Sign Up
+            {loading ? 'Signing up...' : 'Sign Up'}
           </Button>
 
-          <Divider sx={{
+          <Divider sx={{ 
             my: 1.5,
+            color: 'whitesmoke',
             '&::before, &::after': {
-              borderColor: 'whitesmoke' 
+              borderColor: 'whitesmoke'
             }
           }}>OR</Divider>
 
@@ -311,22 +336,31 @@ const SignUp = () => {
             fullWidth
             variant="outlined"
             startIcon={<Google />}
-            sx={{ mb: 1.5, py: 1.5 }}
-            onClick={() => {
-              // Handle Google signup
-              console.log('Google signup clicked');
+            sx={{ 
+              mb: 1.5, 
+              py: 1.5,
+              color: 'whitesmoke',
+              borderColor: 'whitesmoke',
+              borderRadius: '10px',
+              '&:hover': {
+                borderColor: 'whitesmoke'
+              }
             }}
           >
             Continue with Google
           </Button>
 
           <Box sx={{ textAlign: 'center', mt: 1 }}>
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ color: 'whitesmoke' }}>
               Already have an account?{' '}
               <Link
                 component={RouterLink}
                 to="/login"
-                sx={{ fontWeight: 'bold', textDecoration: 'none' }}
+                sx={{ 
+                  fontWeight: 'bold', 
+                  textDecoration: 'none',
+                  color: 'white'
+                }}
               >
                 Login
               </Link>

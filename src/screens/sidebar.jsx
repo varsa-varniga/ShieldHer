@@ -58,7 +58,6 @@ const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
             src={logo}
             alt="logo"
             style={{ borderRadius: '6px', margin:'15px' }}
-            // className="rounded-lg shadow-2xl mx-auto w-full max-w-4xl"
             width={150}
             height={40}
           />
@@ -71,7 +70,6 @@ const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
       <List sx={{ paddingY: 1 }}>
         {navItems.map((item) => (
           <ListItem
-            button
             key={item.route}
             selected={location.pathname === item.route}
             onClick={() => navigate(item.route)}
@@ -83,6 +81,7 @@ const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
               borderRadius: "8px",
               "&:hover": { backgroundColor: "rgba(255,255,255,0.15)", transform: "scale(1.05)" },
               "&.Mui-selected": { backgroundColor: "#36A2EB", color: "white", borderRadius: "12px" },
+              cursor: "pointer" // Add cursor pointer to indicate clickable
             }}
           >
             <ListItemIcon sx={{ color: location.pathname === item.route ? "white" : "inherit" }}>
