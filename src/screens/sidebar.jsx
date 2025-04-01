@@ -7,6 +7,9 @@ import {
   Help as HelpCircleIcon,
   Settings as SettingsIcon,
   Menu as MenuIcon,
+  AccountCircle as AccountIcon,
+  Email as EmailIcon,
+  Logout as LogoutIcon
 } from "@mui/icons-material";
 import {
   Drawer,
@@ -18,12 +21,17 @@ import {
   Box,
   Typography,
   Divider,
+  Avatar,
 } from "@mui/material";
-import logo from "../assets/logo.png"
+import logo from "../assets/logo.png";
 
 const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Get user data from localStorage
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const { name, username, email, picture } = user;
 
   const navItems = [
     { icon: <HomeIcon />, label: "Home", route: "/dashboard" },
@@ -32,6 +40,18 @@ const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
     { icon: <HelpCircleIcon />, label: "Emergency Help", route: "/emergency" },
     { icon: <SettingsIcon />, label: "Settings & Profile", route: "/settings" },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
+  const getAvatarContent = () => {
+    if (picture) return null; // Will use image src if picture exists
+    const displayName = username || name;
+    return displayName ? displayName.charAt(0).toUpperCase() : "G";
+  };
 
   return (
     <Drawer
@@ -49,48 +69,108 @@ const CybersecuritySidebar = ({ isExpanded, setIsExpanded }) => {
           color: "#FFFFFF",
           boxShadow: "4px 0 10px rgba(0,0,0,0.1)",
           borderRight: "none",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
         },
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop:'10px'}}>
-        {isExpanded && (
-          <img
-            src={logo}
-            alt="logo"
-            style={{ borderRadius: '6px', margin:'15px' }}
-            width={150}
-            height={40}
-          />
-        )}
-        <IconButton onClick={() => setIsExpanded(!isExpanded)}>
-          <MenuIcon sx={{ color: "white", fontSize:"60px", padding:2 }} />
-        </IconButton>
+      <Box>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: '10px' }}>
+          {isExpanded && (
+            <img
+              src={logo}
+              alt="logo"
+              style={{ borderRadius: '6px', margin: '15px' }}
+              width={150}
+              height={40}
+            />
+          )}
+          <IconButton onClick={() => setIsExpanded(!isExpanded)}>
+            <MenuIcon sx={{ color: "white", fontSize: "60px", padding: 2 }} />
+          </IconButton>
+        </Box>
+
+        <List sx={{ paddingY: 1 }}>
+          {navItems.map((item) => (
+            <ListItem
+              key={item.route}
+              selected={location.pathname === item.route}
+              onClick={() => navigate(item.route)}
+              sx={{
+                position: "relative",
+                padding: "14px 24px",
+                marginBottom: "12px",
+                transition: "all 0.3s ease-in-out",
+                borderRadius: "8px",
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.15)", transform: "scale(1.05)" },
+                "&.Mui-selected": { backgroundColor: "#36A2EB", color: "white", borderRadius: "12px" },
+                cursor: "pointer"
+              }}
+            >
+              <ListItemIcon sx={{ color: location.pathname === item.route ? "white" : "inherit" }}>
+                {item.icon}
+              </ListItemIcon>
+              {isExpanded && <ListItemText primary={item.label} />}
+            </ListItem>
+          ))}
+        </List>
       </Box>
 
-      <List sx={{ paddingY: 1 }}>
-        {navItems.map((item) => (
-          <ListItem
-            key={item.route}
-            selected={location.pathname === item.route}
-            onClick={() => navigate(item.route)}
+{/* User Profile Footer with Logout */}
+<Box>
+        <Divider sx={{ borderColor: "rgba(255,255,255,0.12)" }} />
+        <List>
+          <ListItem 
+            onClick={handleLogout}
             sx={{
-              position: "relative",
               padding: "14px 24px",
-              marginBottom: "12px",
-              transition: "all 0.3s ease-in-out",
-              borderRadius: "8px",
-              "&:hover": { backgroundColor: "rgba(255,255,255,0.15)", transform: "scale(1.05)" },
-              "&.Mui-selected": { backgroundColor: "#36A2EB", color: "white", borderRadius: "12px" },
-              cursor: "pointer" // Add cursor pointer to indicate clickable
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor: "rgba(255,255,255,0.15)"
+              }
             }}
           >
-            <ListItemIcon sx={{ color: location.pathname === item.route ? "white" : "inherit" }}>
-              {item.icon}
+            <ListItemIcon>
+              <LogoutIcon sx={{color:'white'}}/>
             </ListItemIcon>
-            {isExpanded && <ListItemText primary={item.label} />}
+            {isExpanded && <ListItemText primary="Logout" />}
           </ListItem>
-        ))}
-      </List>
+        </List>
+
+      {/* User Profile Footer */}
+      <Box sx={{ p: 2, borderTop: "1px solid rgba(255,255,255,0.12)" }}>
+        <ListItem sx={{ px: 0 }}>
+          <ListItemIcon>
+          {picture ? (
+                <Avatar src={picture} alt={name} sx={{ width: 40, height: 40 }} />
+              ) : (
+                <Avatar sx={{ 
+                  width: 40, 
+                  height: 40,
+                  bgcolor: '#36A2EB', // Custom background color
+                  color: 'white'      // White text for better contrast
+                }}>
+                  {getAvatarContent()}
+                </Avatar>
+              )}
+          </ListItemIcon>
+          {isExpanded && (
+            <Box sx={{ ml: 1, overflow: "hidden" }}>
+              <Typography variant="subtitle1" noWrap>
+                {username || name || "Guest User"}
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <EmailIcon sx={{ fontSize: 16, mr: 1 }} />
+                <Typography variant="caption" noWrap>
+                  {email || "No email provided"}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </ListItem>
+      </Box>
+      </Box>
     </Drawer>
   );
 };

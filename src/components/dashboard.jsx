@@ -56,7 +56,7 @@ const theme = createTheme({
 });
 
 const SecurityDashboard = ({
-  userName = "Mayuri Ilango",
+  // userName = "Mayuri Ilango",
   securityScore = 75,
 }) => {
   const [alerts] = useState([
@@ -101,6 +101,9 @@ const SecurityDashboard = ({
     return "#48dbfb";
   };
 
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const {name, username} = user;
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -121,7 +124,7 @@ const SecurityDashboard = ({
             color: "text.primary",
           }}
         >
-          Welcome, {userName}
+          Welcome, {username || name}
         </Typography>
 
         <Grid container spacing={3}>
