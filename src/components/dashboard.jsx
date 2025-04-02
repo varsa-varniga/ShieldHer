@@ -20,6 +20,9 @@ import {
   TableRow,
   Paper,
   IconButton,
+  TextField,
+  Modal,
+  CircularProgress,
 } from "@mui/material";
 import {
   SecurityOutlined as SecurityIcon,
@@ -33,6 +36,8 @@ import {
   StarOutlined as StarIcon,
   DeleteOutline as DeleteIcon,
   HistoryOutlined as HistoryIcon,
+  EmailOutlined as EmailIcon,
+  LockOutlined as LockIcon,
 } from "@mui/icons-material";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -97,10 +102,141 @@ const theme = createTheme({
   },
 });
 
-const SecurityDashboard = ({
-  // userName = "Mayuri Ilango",
-  securityScore = 75,
-}) => {
+// Email Authentication Modal Component
+const EmailAuthModal = ({ open, onClose, onAuthenticate }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const BACKEND_URL = "http://localhost:5000";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      // This would call your API endpoint that handles email authentication
+      const response = await fetch(`${BACKEND_URL}/api/authenticate-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Authentication failed");
+      }
+
+      // If authentication is successful, scan emails
+      if (data.success) {
+        console.log("Authentication successful, scanning emails...");
+        const scanResponse = await fetch(`${BACKEND_URL}/api/scan-emails`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const scanData = await scanResponse.json();
+
+        if (!scanResponse.ok) {
+          throw new Error(scanData.message || "Failed to scan emails");
+        }
+        console.log("Scan successful, found threats:", scanData.threats);
+
+        onAuthenticate(scanData.threats || []);
+        onClose();
+      }
+    } catch (err) {
+      console.error("Error during authentication:", err);
+      setError(err.message || "Failed to authenticate. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="email-auth-modal"
+      aria-describedby="connect-email-account"
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          border: "1px solid #000",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
+      >
+        <Typography
+          id="email-auth-modal"
+          variant="h6"
+          component="h2"
+          sx={{ mb: 2, display: "flex", alignItems: "center" }}
+        >
+          <EmailIcon sx={{ mr: 1 }} /> Connect Your Email
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
+          Provide your email credentials to scan for phishing emails and improve
+          your security
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Email Address"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            required
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            required
+            sx={{ mb: 3 }}
+          />
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} /> : <LockIcon />}
+          >
+            {loading ? "Connecting..." : "Connect & Scan"}
+          </Button>
+        </form>
+      </Box>
+    </Modal>
+  );
+};
+
+const SecurityDashboard = () => {
+  // Using constant value instead of state since it's not being updated
+  const userName = "Mayuri Ilango";
+  const [securityScore, setSecurityScore] = useState(75);
+
   const [securitySuggestions, setSecuritySuggestions] = useState([
     {
       id: 1,
@@ -124,57 +260,35 @@ const SecurityDashboard = ({
 
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
-  const [threats, setThreats] = useState([
+
+  // Dummy threats for when email is not connected
+  const dummyThreats = [
     {
       id: 1,
-      type: "phishing",
-      description:
-        "Suspicious email from unknown sender attempting to steal credentials",
-      risk: "High",
-    },
-    {
-      id: 2,
-      type: "malware",
-      description: "Potential malware link detected in recent download",
-      risk: "High",
-    },
-    {
-      id: 3,
       type: "network",
       description: "Unauthorized access attempt from unknown IP address",
       risk: "High",
     },
     {
-      id: 4,
+      id: 2,
       type: "password",
       description: "Weak password detected for critical account",
       risk: "Medium",
     },
     {
-      id: 5,
+      id: 3,
       type: "software",
       description: "Outdated security software requires immediate update",
       risk: "Medium",
     },
-    {
-      id: 6,
-      type: "privacy",
-      description: "Potential data exposure in recent application",
-      risk: "Low",
-    },
-    {
-      id: 7,
-      type: "device",
-      description: "Unrecognized device connected to network",
-      risk: "Medium",
-    },
-    {
-      id: 8,
-      type: "encryption",
-      description: "Incomplete disk encryption configuration",
-      risk: "Low",
-    },
-  ]);
+  ];
+
+  // Use separate state for actual threats and a flag for email connection
+  const [emailConnected, setEmailConnected] = useState(false);
+  const [actualThreats, setActualThreats] = useState([]);
+
+  // Computed threats based on email connection status
+  const threats = emailConnected ? actualThreats : dummyThreats;
 
  const user = JSON.parse(localStorage.getItem("user")) || {};
   const {name, username } = user;
@@ -184,84 +298,6 @@ const SecurityDashboard = ({
     message: "",
     severity: "success",
   });
-
-  const toggleSuggestionCompletion = (suggestionId) => {
-    setSecuritySuggestions((currentSuggestions) =>
-      currentSuggestions.map((suggestion) =>
-        suggestion.id === suggestionId
-          ? { ...suggestion, completed: !suggestion.completed }
-          : suggestion
-      )
-    );
-
-    setNotification({
-      open: true,
-      message: "Security suggestion status updated",
-      severity: "success",
-    });
-  };
-
-  const startSecurityScan = () => {
-    setIsScanning(true);
-    setScanProgress(0);
-
-    const simulateScan = setInterval(() => {
-      setScanProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          clearInterval(simulateScan);
-          setIsScanning(false);
-          return 100;
-        }
-        return prevProgress + 10;
-      });
-    }, 300);
-  };
-
-  const handleMarkAsSafe = (threatId) => {
-    setThreats((prevThreats) =>
-      prevThreats.filter((threat) => threat.id !== threatId)
-    );
-
-    setNotification({
-      open: true,
-      message: "Threat marked as safe successfully",
-      severity: "success",
-    });
-  };
-
-  const handleReportThreat = (threat) => {
-    // Simulate reporting logic
-    setThreats((prevThreats) => prevThreats.filter((t) => t.id !== threat.id));
-
-    setNotification({
-      open: true,
-      message: `Threat "${threat.description}" reported to security team`,
-      severity: "warning",
-    });
-  };
-
-  const handleCloseNotification = () => {
-    setNotification({ ...notification, open: false });
-  };
-
-  const getRiskColor = (risk) => {
-    switch (risk) {
-      case "High":
-        return "error";
-      case "Medium":
-        return "warning";
-      case "Low":
-        return "success";
-      default:
-        return "default";
-    }
-  };
-
-  const getProgressColor = (score) => {
-    if (score < 50) return "#ff6b6b";
-    if (score < 75) return "#feca57";
-    return "#48dbfb";
-  };
 
   const [threatHistory, setThreatHistory] = useState([
     {
@@ -302,12 +338,124 @@ const SecurityDashboard = ({
     },
   ]);
 
+  // Email authentication states
+  const [emailAuthModalOpen, setEmailAuthModalOpen] = useState(false);
+
+  const toggleSuggestionCompletion = (suggestionId) => {
+    setSecuritySuggestions((currentSuggestions) =>
+      currentSuggestions.map((suggestion) =>
+        suggestion.id === suggestionId
+          ? { ...suggestion, completed: !suggestion.completed }
+          : suggestion
+      )
+    );
+
+    setNotification({
+      open: true,
+      message: "Security suggestion status updated",
+      severity: "success",
+    });
+  };
+
+  const startSecurityScan = () => {
+    setIsScanning(true);
+    setScanProgress(0);
+
+    const simulateScan = setInterval(() => {
+      setScanProgress((prevProgress) => {
+        if (prevProgress >= 100) {
+          clearInterval(simulateScan);
+          setIsScanning(false);
+          return 100;
+        }
+        return prevProgress + 10;
+      });
+    }, 300);
+  };
+
+  const handleMarkAsSafe = (threatId) => {
+    if (emailConnected) {
+      setActualThreats((prevThreats) =>
+        prevThreats.filter((threat) => threat.id !== threatId)
+      );
+    } else {
+      // Do nothing for dummy threats or show a notification that this is demo data
+      setNotification({
+        open: true,
+        message: "This is demo data. Connect your email to see real threats.",
+        severity: "info",
+      });
+      return;
+    }
+
+    setNotification({
+      open: true,
+      message: "Threat marked as safe successfully",
+      severity: "success",
+    });
+  };
+
+  const handleReportThreat = (threat) => {
+    // Add to threat history
+    addThreatToHistory({
+      date: new Date().toISOString().split("T")[0],
+      type: threat.type === "phishing" ? "Phishing Attempt" : threat.type,
+      description: threat.description,
+      risk: threat.risk,
+      action: "Reported",
+      resolvedBy: "Security Team",
+    });
+
+    // Remove from active threats if email is connected (real threats)
+    if (emailConnected) {
+      setActualThreats((prevThreats) =>
+        prevThreats.filter((t) => t.id !== threat.id)
+      );
+    } else {
+      // Show notification for dummy threats
+      setNotification({
+        open: true,
+        message: "This is demo data. Connect your email to see real threats.",
+        severity: "info",
+      });
+      return;
+    }
+
+    setNotification({
+      open: true,
+      message: `Threat "${threat.description}" reported to security team`,
+      severity: "warning",
+    });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
+
+  const getRiskColor = (risk) => {
+    switch (risk) {
+      case "High":
+        return "error";
+      case "Medium":
+        return "warning";
+      case "Low":
+        return "success";
+      default:
+        return "default";
+    }
+  };
+
+  const getProgressColor = (score) => {
+    if (score < 50) return "#ff6b6b";
+    if (score < 75) return "#feca57";
+    return "#48dbfb";
+  };
+
   const removeThreatFromHistory = (threatId) => {
     setThreatHistory((prevHistory) =>
       prevHistory.filter((threat) => threat.id !== threatId)
     );
 
-    // Optional: Show a notification
     setNotification({
       open: true,
       message: "Threat history entry removed",
@@ -326,13 +474,53 @@ const SecurityDashboard = ({
       },
       ...prevHistory,
     ]);
+  };
 
-    // Optional: Show a notification
+  // Handle email authentication and scanning
+  const handleEmailConnect = () => {
+    setEmailAuthModalOpen(true);
+  };
+
+  const handleEmailAuthSuccess = (emailThreats) => {
+    setEmailConnected(true);
+
+    // Format email threats to match our threats structure
+    const formattedEmailThreats = emailThreats.map((threat, index) => ({
+      id: index + 1, // Use simple sequential IDs
+      type: "phishing",
+      description: threat.description,
+      risk: threat.risk,
+      sender: threat.sender,
+      subject: threat.subject,
+      date: threat.date,
+      probability: threat.probability,
+    }));
+
+    // Replace dummy threats with real email threats
+    setActualThreats(formattedEmailThreats);
+
+    // Update security score based on number of threats
+    const newScore = Math.max(30, 100 - formattedEmailThreats.length * 5);
+    setSecurityScore(newScore);
+
     setNotification({
       open: true,
-      message: "New threat history entry added",
-      severity: "success",
+      message: `Email connected successfully. Found ${formattedEmailThreats.length} potential phishing threats.`,
+      severity: formattedEmailThreats.length > 0 ? "warning" : "success",
     });
+
+    // Add email connection suggestion if it doesn't exist
+    if (!securitySuggestions.find((s) => s.title === "Email Scanning")) {
+      setSecuritySuggestions((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          title: "Email Scanning",
+          description: "Regular scanning of emails for phishing attempts",
+          completed: true,
+        },
+      ]);
+    }
   };
 
   return (
@@ -411,6 +599,15 @@ const SecurityDashboard = ({
                 >
                   Your security is {securityScore}% strong
                 </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<EmailIcon />}
+                  onClick={handleEmailConnect}
+                  sx={{ mt: 2 }}
+                >
+                  {emailConnected ? "Rescan Email" : "Connect Email"}
+                </Button>
               </CardContent>
             </Card>
           </Grid>
@@ -481,8 +678,9 @@ const SecurityDashboard = ({
                   >
                     <StarIcon sx={{ mr: 2, color: "success.main" }} />
                     <Typography variant="body2" sx={{ color: "text.primary" }}>
-                      Our promise: relentless dedication to your security in an
-                      ever-changing world.
+                      {emailConnected
+                        ? "Email connected! We're actively monitoring for phishing attempts."
+                        : "New! Our email phishing detection uses advanced ML to identify and protect against sophisticated email threats."}
                     </Typography>
                   </Box>
                 </Box>
@@ -588,6 +786,14 @@ const SecurityDashboard = ({
                     }}
                   >
                     <ThreatIcon sx={{ mr: 2 }} /> Real-Time Threat Alerts
+                    {!emailConnected && (
+                      <Chip
+                        label="Demo Data"
+                        color="primary"
+                        size="small"
+                        sx={{ ml: 2 }}
+                      />
+                    )}
                   </Typography>
                   {isScanning ? (
                     <Box
@@ -715,13 +921,61 @@ const SecurityDashboard = ({
                                 >
                                   {threat.description}
                                 </Typography>
-                                <Chip
-                                  label={`${threat.risk} Risk`}
-                                  color={
-                                    getRiskColor(threat.risk).split(".")[1]
-                                  }
-                                  size="small"
-                                />
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  <Chip
+                                    label={`${threat.risk} Risk`}
+                                    color={getRiskColor(threat.risk)}
+                                    size="small"
+                                  />
+                                  <Chip
+                                    label={
+                                      threat.type === "phishing"
+                                        ? "Phishing Email"
+                                        : threat.type
+                                    }
+                                    color="primary"
+                                    size="small"
+                                  />
+                                  {threat.probability && (
+                                    <Chip
+                                      label={`${(
+                                        threat.probability * 100
+                                      ).toFixed(0)}% Confidence`}
+                                      color="secondary"
+                                      size="small"
+                                    />
+                                  )}
+                                  {!emailConnected && (
+                                    <Chip
+                                      label="Demo Data"
+                                      color="primary"
+                                      variant="outlined"
+                                      size="small"
+                                    />
+                                  )}
+                                </Box>
+                                {threat.sender && (
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ mt: 1, color: "text.secondary" }}
+                                  >
+                                    From: {threat.sender}
+                                  </Typography>
+                                )}
+                                {threat.subject && (
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ color: "text.secondary" }}
+                                  >
+                                    Subject: {threat.subject}
+                                  </Typography>
+                                )}
                               </Box>
                               <Box>
                                 <Button
@@ -746,23 +1000,6 @@ const SecurityDashboard = ({
                           ))}
                         </Box>
                       )}
-                      <Snackbar
-                        open={notification.open}
-                        autoHideDuration={6000}
-                        onClose={handleCloseNotification}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "right",
-                        }}
-                      >
-                        <Alert
-                          onClose={handleCloseNotification}
-                          severity={notification.severity}
-                          sx={{ width: "100%" }}
-                        >
-                          {notification.message}
-                        </Alert>
-                      </Snackbar>
                     </Box>
                   )}
                 </Box>
@@ -787,22 +1024,6 @@ const SecurityDashboard = ({
                       Threat Resolution History
                     </Typography>
                   </Box>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() =>
-                      addThreatToHistory({
-                        date: new Date().toISOString().split("T")[0],
-                        type: "Test Threat",
-                        description: "Sample threat for demonstration",
-                        risk: "Low",
-                        action: "Simulated",
-                        resolvedBy: "System Test",
-                      })
-                    }
-                  >
-                    Add Sample Threat
-                  </Button>
                 </Box>
                 <TableContainer
                   component={Paper}
@@ -849,6 +1070,11 @@ const SecurityDashboard = ({
                           sx={{ color: "text.primary", fontWeight: "bold" }}
                         >
                           Resolved By
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "text.primary", fontWeight: "bold" }}
+                        >
+                          Actions
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -908,6 +1134,25 @@ const SecurityDashboard = ({
           </Grid>
         </Grid>
       </Box>
+      <EmailAuthModal
+        open={emailAuthModalOpen}
+        onClose={() => setEmailAuthModalOpen(false)}
+        onAuthenticate={handleEmailAuthSuccess}
+      />
+
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={6000}
+        onClose={handleCloseNotification}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.severity}
+          sx={{ width: "100%" }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 };
