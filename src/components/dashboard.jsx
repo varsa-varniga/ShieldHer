@@ -176,6 +176,9 @@ const SecurityDashboard = ({
     },
   ]);
 
+ const user = JSON.parse(localStorage.getItem("user")) || {};
+  const {name, username } = user;
+
   const [notification, setNotification] = useState({
     open: false,
     message: "",
