@@ -61,7 +61,6 @@ export default function CyberSecurityGuide() {
   const navigate = useNavigate();
   
 
-function cybersecurity() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#0f172a] to-[#1e293b] text-white p-10" overflow="hidden">
       <Typography
@@ -174,5 +173,4 @@ function cybersecurity() {
       
     </div>
   );
-}
 }

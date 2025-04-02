@@ -338,6 +338,7 @@ const SecurityDashboard = () => {
     },
   ]);
 
+
   // Email authentication states
   const [emailAuthModalOpen, setEmailAuthModalOpen] = useState(false);
 
