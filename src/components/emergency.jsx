@@ -28,6 +28,8 @@ import {
   GavelRounded,
   DeleteSweep,
   Person,
+  Phone,
+  Email,
 } from "@mui/icons-material";
 import Chatbot from "react-chatbot-kit";
 import "react-chatbot-kit/build/main.css";
@@ -41,6 +43,8 @@ const EmergencyCyberHelpPage = () => {
   const [incidentType, setIncidentType] = useState(null);
   const [description, setDescription] = useState("");
   const [evidence, setEvidence] = useState(null);
+  const [email, setEmail] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
   const [notification, setNotification] = useState({
     open: false,
     message: "",
@@ -49,7 +53,10 @@ const EmergencyCyberHelpPage = () => {
   const [cyberPoliceModalOpen, setCyberPoliceModalOpen] = useState(false);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
 
-  // Removed unused state variables that were causing warnings
+  // Email to send reports to
+  const REPORT_EMAIL = "negashree.al23@bitsathy.ac.in";
+  // Phone number to call for cyber police help
+  const CYBER_POLICE_PHONE = "8072964586";
 
   const actionButtons = [
     {
@@ -104,22 +111,56 @@ const EmergencyCyberHelpPage = () => {
 
   const handleReportSubmit = (e) => {
     e.preventDefault();
+
+    if (!incidentType) {
+      setNotification({
+        open: true,
+        message: "Please select an incident type before submitting.",
+        severity: "error",
+      });
+      return;
+    }
+
     console.log("Report submitted:");
     console.log(`Incident type: ${incidentType?.label}`);
     console.log(`Description: ${description}`);
     console.log(`Evidence: ${evidence?.name}`);
+    console.log(`Contact Email: ${email}`);
+    console.log(`Contact Number: ${contactNumber}`);
+
+    // In a real application, you would use a backend API or email service
+    // Here we'll use mailto for demonstration purposes
+    const subject = `Cyber Emergency Report: ${incidentType?.label}`;
+    const body = `
+Incident Type: ${incidentType?.label}
+Description: ${description}
+Contact Email: ${email}
+Contact Number: ${contactNumber}
+Evidence: ${
+      evidence
+        ? `File "${evidence.name}" attached separately`
+        : "No evidence uploaded"
+    }
+    `;
+
+    // Open the email client
+    window.location.href = `mailto:${REPORT_EMAIL}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
 
     setNotification({
       open: true,
       message: evidence
-        ? `Report submitted successfully. File "${evidence.name}" uploaded. Our team will take necessary actions.`
-        : "Report submitted successfully. Our team will take necessary actions.",
+        ? `Report being sent to ${REPORT_EMAIL}. File "${evidence.name}" will need to be attached separately.`
+        : `Report being sent to ${REPORT_EMAIL}. Our team will take necessary actions.`,
       severity: "success",
     });
 
     setIncidentType(null);
     setDescription("");
     setEvidence(null);
+    setEmail("");
+    setContactNumber("");
   };
 
   const handleCloseNotification = () => {
@@ -130,13 +171,16 @@ const EmergencyCyberHelpPage = () => {
     setCyberPoliceModalOpen(false);
     setConfirmationModalOpen(true);
 
-    // Simulate API call to cyber police (Fake API for Demo)
+    // Simulate API call to cyber police
     setTimeout(() => {
       setConfirmationModalOpen(false);
+
+      // Initiate phone call
+      window.location.href = `tel:${CYBER_POLICE_PHONE}`;
+
       setNotification({
         open: true,
-        message:
-          "Your request has been sent to Cyber Police. An officer will contact you shortly.",
+        message: `Connecting you to Cyber Police at ${CYBER_POLICE_PHONE}.`,
         severity: "success",
       });
     }, 3000);
@@ -247,6 +291,7 @@ const EmergencyCyberHelpPage = () => {
                   <TextField
                     {...params}
                     label="What happened?"
+                    required
                     fullWidth
                     sx={{
                       "& .MuiInputLabel-root": {
@@ -271,6 +316,81 @@ const EmergencyCyberHelpPage = () => {
                   />
                 )}
                 onChange={(event, value) => setIncidentType(value)}
+              />
+
+              <TextField
+                id="email"
+                label="Your Email"
+                type="email"
+                sx={{
+                  width: "100%",
+                  marginBottom: "20px",
+                  "& .MuiInputLabel-root": {
+                    color: "#fff !important",
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    color: "#fff !important",
+                    "& input": {
+                      color: "#fff !important",
+                    },
+                    "& fieldset": {
+                      borderColor: "#fff",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#fff",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#007bff",
+                    },
+                  },
+                }}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: "#fff",
+                  },
+                  startAdornment: (
+                    <Email sx={{ color: "#fff", mr: 1, fontSize: 20 }} />
+                  ),
+                }}
+              />
+
+              <TextField
+                id="contactNumber"
+                label="Your Contact Number"
+                sx={{
+                  width: "100%",
+                  marginBottom: "20px",
+                  "& .MuiInputLabel-root": {
+                    color: "#fff !important",
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    color: "#fff !important",
+                    "& input": {
+                      color: "#fff !important",
+                    },
+                    "& fieldset": {
+                      borderColor: "#fff",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#fff",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#007bff",
+                    },
+                  },
+                }}
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: "#fff",
+                  },
+                  startAdornment: (
+                    <Phone sx={{ color: "#fff", mr: 1, fontSize: 20 }} />
+                  ),
+                }}
               />
 
               <TextField
@@ -437,10 +557,8 @@ const EmergencyCyberHelpPage = () => {
                     alignItems: "center",
                   }}
                 >
-                  <span style={{ fontSize: "10px", marginRight: "5px" }}>
-                    ⚠️
-                  </span>
-                  DEMO
+                  <Phone sx={{ mr: 1, fontSize: 16 }} />
+                  {CYBER_POLICE_PHONE}
                 </Box>
               </Box>
 
@@ -522,8 +640,9 @@ const EmergencyCyberHelpPage = () => {
                       boxShadow: "0 6px 20px rgba(49, 130, 206, 0.7)",
                     },
                   }}
+                  startIcon={<Phone />}
                 >
-                  Request Cyber Police Help
+                  Call Cyber Police Now
                 </Button>
               </Box>
             </Box>
@@ -570,7 +689,7 @@ const EmergencyCyberHelpPage = () => {
                     animation: "pulse 1.5s infinite",
                   }}
                 >
-                  <Security sx={{ fontSize: 80, color: "#fff" }} />
+                  <Phone sx={{ fontSize: 80, color: "#fff" }} />
                 </div>
               </Box>
               <Typography
@@ -580,8 +699,8 @@ const EmergencyCyberHelpPage = () => {
                 Connecting to Cyber Police
               </Typography>
               <Typography variant="body1" sx={{ color: "#B2CADE" }}>
-                Your request is being processed. A certified cyber police
-                officer will be assigned to your case shortly.
+                Initiating call to {CYBER_POLICE_PHONE}. Please stay on the
+                line.
               </Typography>
             </Box>
           </Fade>
