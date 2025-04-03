@@ -109,7 +109,8 @@ const EmailAuthModal = ({ open, onClose, onAuthenticate }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const BACKEND_URL = "http://localhost:5000";
+// Update this in the EmailAuthModal component
+const BACKEND_URL = "http://127.0.0.1:5000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();

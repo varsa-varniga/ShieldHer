@@ -9,7 +9,6 @@ import Dashboard from "./src/components/dashboard";
 import ThreatScanner from "./src/components/threatscanner";
 import CyberSafetyGuide from "./src/components/cybersecurity";
 import EmergencyHelp from "./src/components/emergency";
-import Settings from "./src/components/settings";
 import Header from "./src/screens/header";
 import Login from "./src/components/login";
 import SignUp from "./src/components/signUp";
@@ -20,6 +19,7 @@ import LandingPage from "./src/components/landingPage";
 import CybersecurityQuiz from "./src/components/CyberSecurityQuiz";
 import CitizenManualPage from "./src/components/Guides";
 import CyberSafetyTips from "./src/components/CyberSafetyTips";
+import ProfileSettings from "./src/components/settings";
 
 function Layout({ isExpanded, setIsExpanded, manuals }) {
   const location = useLocation();
@@ -70,7 +70,7 @@ function Layout({ isExpanded, setIsExpanded, manuals }) {
           <Route path="/threat-scanner" element={<ThreatScanner />} />
           <Route path="/safety-guide" element={<CyberSafetyGuide />} />
           <Route path="/emergency" element={<EmergencyHelp />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={<ProfileSettings />} />
           <Route path="/cyberquiz" element={<CybersecurityQuiz />} />
           <Route path="/cyber-safety-tips" element={<CyberSafetyTips />} />
           

@@ -7,34 +7,28 @@ import {
   Box,
   Tabs,
   Tab,
-  CircularProgress,
   Paper,
   Snackbar,
   Alert,
   List,
   ListItem,
   ListItemText,
-  Collapse,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
-import InfoIcon from "@mui/icons-material/Info"; // ✅ Import missing InfoIcon
 import { useDropzone } from "react-dropzone";
 import LinkIcon from "@mui/icons-material/Link";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import ScanAnimation from "./ScanAnimation"; // Import the ScanAnimation component
-
-import { motion } from "framer-motion";
+import ScanAnimation from "./ScanAnimation"; 
 import { checkPhishingLink } from "../services/PhishingScannerService";
-
 const ThreatScanner = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState([]);
-  const [fileScanResults, setFileScanResults] = useState([]); // Consolidated state
+  const [fileScanResults, setFileScanResults] = useState([]); 
 
   const [folderUploaded, setFolderUploaded] = useState(false);
   const [imageUploaded, setImageUploaded] = useState(false);
@@ -42,7 +36,7 @@ const ThreatScanner = () => {
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
     setScanResult(null);
-    setFileScanResults([]); // Clear previous results when switching tabs
+    setFileScanResults([]); 
   };
 
   const isValidURL = (url) => {
@@ -64,14 +58,8 @@ const ThreatScanner = () => {
     setLoading(true); // Start loading (show animation)
   
     try {
-      // Simulate scanning delay (3 seconds)
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-  
-      // Call backend (replace with actual API request later)
-      const response = {
-        isPhishing: Math.random() < 0.3,
-        riskScore: Math.floor(Math.random() * 100),
-      };
+      // Call backend API instead of mock response
+      const response = await checkPhishingLink(inputValue.trim());
   
       setScanResult({
         status: response.isPhishing ? "Phishing Detected" : "Clean",
