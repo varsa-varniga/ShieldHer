@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { CssBaseline } from "@mui/material";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Layout from "../layout";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -41,6 +42,7 @@ function App() {
   }, []);
 
   return (
+    <AuthProvider>
     <GoogleOAuthProvider 
     clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
     onScriptLoadError={() => console.error('Google OAuth script failed to load')}
@@ -54,6 +56,7 @@ function App() {
         />
       </Router>
     </GoogleOAuthProvider>
+    </AuthProvider>
   );
 }
 

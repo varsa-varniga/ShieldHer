@@ -22,21 +22,23 @@ import LinkIcon from "@mui/icons-material/Link";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ScanAnimation from "./ScanAnimation"; 
 import { checkPhishingLink } from "../services/PhishingScannerService";
+
 const ThreatScanner = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState([]);
-  const [fileScanResults, setFileScanResults] = useState([]); 
-
+  const [fileScanResults, setFileScanResults] = useState([]);
+  const [note, setNote] = useState(null);
   const [folderUploaded, setFolderUploaded] = useState(false);
   const [imageUploaded, setImageUploaded] = useState(false);
 
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
     setScanResult(null);
-    setFileScanResults([]); 
+    setFileScanResults([]);
+    setNote(null);
   };
 
   const isValidURL = (url) => {
@@ -56,24 +58,29 @@ const ThreatScanner = () => {
     }
   
     setLoading(true); // Start loading (show animation)
+    setNote(null);
   
     try {
-      // Call backend API instead of mock response
+      // Call backend API
       const response = await checkPhishingLink(inputValue.trim());
-  
+      console.log("API Response:", response); // For debugging
+      
       setScanResult({
-        status: response.isPhishing ? "Phishing Detected" : "Clean",
+        status: response.isPhishing ? "Phishing" : "Legitimate",
         riskScore: response.riskScore || 0,
       });
+      
+      if (response.note) {
+        setNote(response.note);
+      }
     } catch (error) {
       console.error("Error scanning URL:", error);
-      alert("Error scanning URL.");
+      alert("Error scanning URL. Please make sure the backend server is running.");
     }
   
     setLoading(false); // Stop loading (hide animation)
   };
   
-
   const onDrop = (acceptedFiles) => {
     setFiles(acceptedFiles);
     setFolderUploaded(true);
@@ -111,9 +118,9 @@ const ThreatScanner = () => {
   };
   
   const getRiskColor = (score) => {
-    if (score > 80) return "#ff4d4d";
-    if (score > 50) return "#ffa000";
-    return "#32cd32";
+    if (score > 80) return "#ff4d4d"; // High risk - red
+    if (score > 50) return "#ffa000"; // Medium risk - amber
+    return "#32cd32"; // Low risk - green
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -128,29 +135,23 @@ const ThreatScanner = () => {
         mt: 5,
         mb: 5,
         p: 3,
-       
         borderRadius: 2,
         boxShadow: 3,
         bgcolor: "#2C3E50", // Dark navy blue
         color: "white",
-        
       }}
     >
-     
-     <Typography variant="body1" align="center" mt={2} fontSize={"2.5rem"} color="white">
-  {tabIndex === 0 ? <LinkIcon sx={{ fontSize: "2.5rem", verticalAlign: "middle" }} /> 
-                  : <InsertDriveFileIcon sx={{ fontSize: "2.5rem", verticalAlign: "middle" }} />} 
-  <strong> {tabIndex === 0 ? "Is this link safe?" : "Is this file safe?"}</strong>
-</Typography>
+      <Typography variant="body1" align="center" mt={2} fontSize={"2.5rem"} color="white">
+        {tabIndex === 0 ? <LinkIcon sx={{ fontSize: "2.5rem", verticalAlign: "middle" }} /> 
+                      : <InsertDriveFileIcon sx={{ fontSize: "2.5rem", verticalAlign: "middle" }} />} 
+        <strong> {tabIndex === 0 ? "Is this link safe?" : "Is this file safe?"}</strong>
+      </Typography>
 
-<Typography textAlign={"center"} fontSize={"1rem"} color="white">
-  {tabIndex === 0
-    ? "Scan a URL you want to visit to detect malware, fake websites, and phishing attacks."
-    : "Scan your file for malware and viruses."}
-</Typography>
-
-
-    
+      <Typography textAlign={"center"} fontSize={"1rem"} color="white">
+        {tabIndex === 0
+          ? "Scan a URL you want to visit to detect malware, fake websites, and phishing attacks."
+          : "Scan your file for malware and viruses."}
+      </Typography>
 
       <Tabs
         value={tabIndex}
@@ -188,45 +189,28 @@ const ThreatScanner = () => {
             disabled={loading}
             sx={{ mt: 2, backgroundColor: "#3f7afc", "&:hover": { backgroundColor: "#3160d8" } }}
           >
-            {loading ? "scaning..." : "Scan URL"}
+            {loading ? "Scanning..." : "Scan URL"}
           </Button>
-          <Box display="flex" flexDirection="column" alignItems="center">
-  {loading && (
-  <Box display="flex" flexDirection="column" alignItems="center">
-  {loading ? (
-    <Box
-    display="flex"
-    justifyContent="center"
-    alignItems="center"
-    width="100vw"
-    height="100vh"
- position={"absolute"}
-    zIndex={999}
-    bgcolor="rgba(0, 0, 0, 0.5)"
-    borderRadius={2}
-    top={0}
-    left={0}
-    >
-   
-    <ScanAnimation />
-  </Box>
-  
 
- 
-  ) : (
-    scanResult && (
-      <Typography variant="h6" color="white" mt={2}>
-        Scan Result: {scanResult.status} (Risk Score: {scanResult.riskScore})
-      </Typography>
-    )
-  )}
-</Box>
+          {loading && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              width="100vw"
+              height="100vh"
+              position={"absolute"}
+              zIndex={999}
+              bgcolor="rgba(0, 0, 0, 0.5)"
+              borderRadius={2}
+              top={0}
+              left={0}
+            >
+              <ScanAnimation />
+            </Box>
+          )}
 
-  )}
-</Box>
-
-
-          {scanResult && (
+          {scanResult && !loading && (
             <Paper
               elevation={3}
               sx={{
@@ -238,9 +222,21 @@ const ThreatScanner = () => {
               }}
             >
               <Typography variant="h6">
-                {scanResult.status === "Clean" ? <CheckCircleIcon /> : <ErrorIcon />} {scanResult.status}
+                {scanResult.status === "Legitimate" ? <CheckCircleIcon sx={{ verticalAlign: "middle", mr: 1 }} /> : <ErrorIcon sx={{ verticalAlign: "middle", mr: 1 }} />} 
+                Result: {scanResult.status}
               </Typography>
-              <Typography>Risk Score: {scanResult.riskScore}/100</Typography>
+              
+              <Typography variant="body1" mt={2}>
+                <strong>Phishing Probability:</strong> {scanResult.riskScore.toFixed(2)}%
+              </Typography>
+              
+              {note && (
+                <Box sx={{ mt: 2, p: 2, bgcolor: "rgba(255, 255, 255, 0.2)", borderRadius: 1 }}>
+                  <Typography variant="body2">
+                    <strong>Note:</strong> {note}
+                  </Typography>
+                </Box>
+              )}
             </Paper>
           )}
         </Box>
@@ -256,14 +252,14 @@ const ThreatScanner = () => {
               borderRadius: 2,
               textAlign: "center",
               cursor: "pointer",
-              bgcolor: "skyblue",
-              "&:hover": { bgcolor: "skyblue" },
+              bgcolor: "rgba(135, 206, 235, 0.2)", // Lighter skyblue
+              "&:hover": { bgcolor: "rgba(135, 206, 235, 0.3)" },
             }}
           >
             <input {...getInputProps()} />
             <CloudUploadIcon sx={{ fontSize: 50, color: "#3f7afc" }} />
-            <Typography variant="body1" mt={1} color="textSecondary">
-              Drag & Drop Images Here
+            <Typography variant="body1" mt={1} color="white">
+              Drag & Drop Files Here to Scan
             </Typography>
           </Box>
 
@@ -274,6 +270,8 @@ const ThreatScanner = () => {
                   <ListItemText
                     primary={file.name}
                     secondary={`Status: ${file.status}, Risk Score: ${file.riskScore}/100`}
+                    primaryTypographyProps={{ color: "white" }}
+                    secondaryTypographyProps={{ color: "rgba(255, 255, 255, 0.7)" }}
                   />
                 </ListItem>
               ))}
@@ -292,7 +290,7 @@ const ThreatScanner = () => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert severity="success" variant="filled">
-          {folderUploaded ? "Folder uploaded successfully!" : "Image uploaded successfully!"}
+          {folderUploaded ? "Files uploaded for scanning!" : "Image uploaded successfully!"}
         </Alert>
       </Snackbar>
     </Container>

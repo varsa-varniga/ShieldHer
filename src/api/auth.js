@@ -2,16 +2,15 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api/auth';
 
-// Create axios instance with default config
 const authAxios = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 10000 // 10 seconds timeout
+  timeout: 10000
 });
 
-// Add interceptor for auth token
+// Request interceptor for auth token
 authAxios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -23,24 +22,21 @@ authAxios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Enhanced error handling function
 const handleApiError = (error) => {
   if (error.response) {
-    // The request was made and the server responded with a status code
-    // that falls out of the range of 2xx
-    throw new Error(error.response.data?.message || 
-                  error.response.data?.error || 
-                  'Request failed with status code ' + error.response.status);
+    throw new Error(
+      error.response.data?.message || 
+      error.response.data?.error || 
+      `Request failed with status ${error.response.status}`
+    );
   } else if (error.request) {
-    // The request was made but no response was received
-    throw new Error('No response received from server. Please check your network connection.');
+    throw new Error('No response from server. Check your network connection.');
   } else {
-    // Something happened in setting up the request that triggered an Error
-    throw new Error('Error setting up request: ' + error.message);
+    throw new Error(`Request setup error: ${error.message}`);
   }
 };
 
-// Register user
+// Either use individual exports like this:
 const register = async (userData) => {
   try {
     const response = await authAxios.post('/register', userData);
@@ -54,10 +50,9 @@ const register = async (userData) => {
   }
 };
 
-// Login user
-const login = async (userData) => {
+const login = async (credentials) => {
   try {
-    const response = await authAxios.post('/login', userData);
+    const response = await authAxios.post('/login', credentials);
     if (response.data?.token) {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       localStorage.setItem('token', response.data.token);
@@ -68,8 +63,6 @@ const login = async (userData) => {
   }
 };
 
-
-// Google login
 const googleLogin = async (userData) => {
   try {
     const response = await authAxios.post('/google-login', userData);
@@ -83,7 +76,6 @@ const googleLogin = async (userData) => {
   }
 };
 
-// Send OTP for password reset
 const sendOTP = async (email) => {
   try {
     const response = await authAxios.post('/send-otp', { email });
@@ -93,7 +85,6 @@ const sendOTP = async (email) => {
   }
 };
 
-// Verify OTP
 const verifyOTP = async (email, otp) => {
   try {
     const response = await authAxios.post('/verify-otp', { email, otp });
@@ -103,7 +94,6 @@ const verifyOTP = async (email, otp) => {
   }
 };
 
-// Reset password
 const resetPassword = async (email, otp, newPassword) => {
   try {
     const response = await authAxios.post('/reset-password', {
@@ -117,15 +107,11 @@ const resetPassword = async (email, otp, newPassword) => {
   }
 };
 
-// Logout user
 const logout = () => {
   localStorage.removeItem('user');
   localStorage.removeItem('token');
-  // Optional: Make a call to invalidate the token on the server
-  // return authAxios.post('/logout');
 };
 
-// Get current user
 const getCurrentUser = () => {
   try {
     const user = localStorage.getItem('user');
@@ -136,7 +122,9 @@ const getCurrentUser = () => {
   }
 };
 
-const authService = {
+// OR use this single export block instead of individual exports:
+
+export default {
   register,
   login,
   googleLogin,
@@ -144,7 +132,8 @@ const authService = {
   sendOTP,
   verifyOTP,
   resetPassword,
-  getCurrentUser,
+  getCurrentUser
 };
 
-export default authService;
+
+// But NOT both at the same time

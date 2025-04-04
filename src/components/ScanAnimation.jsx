@@ -1,6 +1,5 @@
 import Lottie from "lottie-react";
-import scanJson from "../assets/Scan.json";
-
+import scanJson from "../assets/Scan.json?url";
 const ScanAnimation = () => {
   return (
     <Lottie
