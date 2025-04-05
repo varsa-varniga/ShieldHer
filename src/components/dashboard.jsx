@@ -110,7 +110,8 @@ const EmailAuthModal = ({ open, onClose, onAuthenticate }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const BACKEND_URL = "http://localhost:5000";
+// Update this in the EmailAuthModal component
+const BACKEND_URL = "http://127.0.0.1:5000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -291,6 +292,9 @@ const SecurityDashboard = () => {
   // Computed threats based on email connection status
   const threats = emailConnected ? actualThreats : dummyThreats;
 
+ const user = JSON.parse(localStorage.getItem("user")) || {};
+  const {name, username } = user;
+
   const [notification, setNotification] = useState({
     open: false,
     message: "",
@@ -335,6 +339,7 @@ const SecurityDashboard = () => {
       resolvedBy: "System Update",
     },
   ]);
+
 
   // Email authentication states
   const [emailAuthModalOpen, setEmailAuthModalOpen] = useState(false);
@@ -541,7 +546,7 @@ const SecurityDashboard = () => {
             color: "text.primary",
           }}
         >
-          Welcome, {userName}
+          Welcome, {username || name}
         </Typography>
 
         <Grid container spacing={2}>
