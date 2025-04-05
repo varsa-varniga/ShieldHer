@@ -324,31 +324,6 @@ const SignUp = () => {
             {loading ? 'Signing up...' : 'Sign Up'}
           </Button>
 
-          <Divider sx={{ 
-            my: 1.5,
-            color: 'whitesmoke',
-            '&::before, &::after': {
-              borderColor: 'whitesmoke'
-            }
-          }}>OR</Divider>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<Google />}
-            sx={{ 
-              mb: 1.5, 
-              py: 1.5,
-              color: 'whitesmoke',
-              borderColor: 'whitesmoke',
-              borderRadius: '10px',
-              '&:hover': {
-                borderColor: 'whitesmoke'
-              }
-            }}
-          >
-            Continue with Google
-          </Button>
 
           <Box sx={{ textAlign: 'center', mt: 1 }}>
             <Typography variant="body2" sx={{ color: 'whitesmoke' }}>

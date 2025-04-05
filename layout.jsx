@@ -23,7 +23,7 @@ import ProfileSettings from "./src/components/settings";
 
 function Layout({ isExpanded, setIsExpanded, manuals }) {
   const location = useLocation();
-  const isAuthPage = ['/', '/login', '/signup', '/forgot-password', '/verify-otp', '/reset-password']
+  const isAuthPage = ['/', '/login', '/signup', '/forgot-password', '/verify-otp', '/resetPassword']
     .includes(location.pathname);
   const isLandingPage = location.pathname === "/";
 
