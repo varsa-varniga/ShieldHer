@@ -30,8 +30,8 @@ import {
   Phone as PhoneIcon,
   Email as EmailIcon,
 } from "@mui/icons-material";
-import { useAuth } from '../context/AuthContext';
-import { submitCyberReport } from '../api/reportService';
+import { useAuth } from "../context/AuthContext";
+import { submitCyberReport } from "../api/reportService";
 import Chatbot from "react-chatbot-kit";
 import "react-chatbot-kit/build/main.css";
 import config from "../chatbot/config";
@@ -49,7 +49,7 @@ const autocompleteStyles = {
   width: "100%",
   marginBottom: "20px",
   "& .MuiAutocomplete-root": { color: "#fff !important" },
-  "& .MuiAutocomplete-inputRoot": { 
+  "& .MuiAutocomplete-inputRoot": {
     color: "#fff !important",
     "& .MuiAutocomplete-input": { color: "#fff !important" },
   },
@@ -108,58 +108,95 @@ const modalStyle = {
 
 // Component abstractions
 const CyberPoliceModal = ({ open, onClose, actions, phone, onHelpRequest }) => (
-  <Modal open={open} onClose={onClose} closeAfterTransition BackdropComponent={Backdrop}>
+  <Modal
+    open={open}
+    onClose={onClose}
+    closeAfterTransition
+    BackdropComponent={Backdrop}
+  >
     <Fade in={open}>
       <Box sx={modalStyle}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 3, justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 3,
+            justifyContent: "space-between",
+          }}
+        >
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Shield sx={{ fontSize: 40, mr: 2, color: "#63B3ED" }} />
-            <Typography variant="h4" component="h2" sx={{ fontWeight: "bold", color: "#fff", display: "flex", alignItems: "center" }}>
+            <Typography
+              variant="h4"
+              component="h2"
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
               Cyber Police Division
-              <Verified sx={{ ml: 1, color: "#4caf50", animation: "pulse 1.5s infinite" }} />
+              <Verified
+                sx={{
+                  ml: 1,
+                  color: "#4caf50",
+                  animation: "pulse 1.5s infinite",
+                }}
+              />
             </Typography>
           </Box>
-          <Box sx={{ 
-            bgcolor: "#0A2342", 
-            color: "#fff", 
-            px: 2, 
-            py: 0.5, 
-            borderRadius: "20px", 
-            fontSize: "12px", 
-            display: "flex", 
-            alignItems: "center" 
-          }}>
+          <Box
+            sx={{
+              bgcolor: "#0A2342",
+              color: "#fff",
+              px: 2,
+              py: 0.5,
+              borderRadius: "20px",
+              fontSize: "12px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <PhoneIcon sx={{ mr: 1, fontSize: 16 }} />
             {phone}
           </Box>
         </Box>
 
-        <Typography variant="body1" sx={{ color: "#B2CADE", mb: 3, fontWeight: "medium" }}>
+        <Typography
+          variant="body1"
+          sx={{ color: "#B2CADE", mb: 3, fontWeight: "medium" }}
+        >
           Our cyber police unit is ready to assist with your online emergency.
         </Typography>
 
         <List>
           {actions.map((action, index) => (
-            <ListItem key={index} sx={{ 
-              bgcolor: "rgba(30, 64, 104, 0.4)",
-              borderRadius: "8px",
-              mb: 2,
-              transition: "all 0.3s",
-              "&:hover": {
-                bgcolor: "rgba(30, 64, 104, 0.6)",
-                transform: "translateX(5px)",
-              },
-            }}>
+            <ListItem
+              key={index}
+              sx={{
+                bgcolor: "rgba(30, 64, 104, 0.4)",
+                borderRadius: "8px",
+                mb: 2,
+                transition: "all 0.3s",
+                "&:hover": {
+                  bgcolor: "rgba(30, 64, 104, 0.6)",
+                  transform: "translateX(5px)",
+                },
+              }}
+            >
               <ListItemIcon>{action.icon}</ListItemIcon>
               <ListItemText
                 primary={
-                  <Typography sx={{ 
-                    color: "#fff",
-                    fontWeight: "bold",
-                    fontSize: "18px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}>
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontWeight: "bold",
+                      fontSize: "18px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
                     <Check sx={{ color: "#4caf50", mr: 1, fontSize: 20 }} />
                     {action.text}
                   </Typography>
@@ -206,35 +243,42 @@ const CyberPoliceModal = ({ open, onClose, actions, phone, onHelpRequest }) => (
 const ConfirmationModal = ({ open, phone }) => (
   <Modal open={open} closeAfterTransition BackdropComponent={Backdrop}>
     <Fade in={open}>
-      <Box sx={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: 400,
-        bgcolor: "#1A2133",
-        borderRadius: "16px",
-        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
-        p: 4,
-        textAlign: "center",
-        border: "1px solid rgba(66, 153, 225, 0.5)",
-      }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "#1A2133",
+          borderRadius: "16px",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+          p: 4,
+          textAlign: "center",
+          border: "1px solid rgba(66, 153, 225, 0.5)",
+        }}
+      >
         <Box sx={{ mb: 2 }}>
-          <div style={{
-            width: "150px",
-            height: "150px",
-            margin: "0 auto",
-            backgroundColor: "#3182CE",
-            borderRadius: "50%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            animation: "pulse 1.5s infinite",
-          }}>
+          <div
+            style={{
+              width: "150px",
+              height: "150px",
+              margin: "0 auto",
+              backgroundColor: "#3182CE",
+              borderRadius: "50%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              animation: "pulse 1.5s infinite",
+            }}
+          >
             <PhoneIcon sx={{ fontSize: 80, color: "#fff" }} />
           </div>
         </Box>
-        <Typography variant="h5" sx={{ color: "#fff", fontWeight: "bold", mb: 2 }}>
+        <Typography
+          variant="h5"
+          sx={{ color: "#fff", fontWeight: "bold", mb: 2 }}
+        >
           Connecting to Cyber Police
         </Typography>
         <Typography variant="body1" sx={{ color: "#B2CADE" }}>
@@ -288,7 +332,7 @@ const EmergencyCyberHelpPage = () => {
     incidentType: "",
     email: "",
     contactNumber: "",
-    description: ""
+    description: "",
   });
 
   useEffect(() => {
@@ -376,41 +420,43 @@ const EmergencyCyberHelpPage = () => {
 
   const handleReportSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-  
+
     try {
       const reportData = {
         incidentType: incidentType.label,
         description: description.substring(0, MAX_DESCRIPTION_LENGTH),
         email: email.substring(0, MAX_EMAIL_LENGTH),
-        contactNumber: contactNumber ? contactNumber.substring(0, MAX_CONTACT_LENGTH) : "",
-        userId: user?.id
+        contactNumber: contactNumber
+          ? contactNumber.substring(0, MAX_CONTACT_LENGTH)
+          : "",
+        userId: user?.id,
       };
-      
+
       const response = await submitCyberReport(reportData);
-      
+
       showNotification(
-        response.message || "Report submitted successfully!", 
+        response.message || "Report submitted successfully!",
         "success"
       );
       resetForm();
     } catch (error) {
-      console.error('Report submission error:', error);
-      
+      console.error("Report submission error:", error);
+
       let errorMsg = error.message;
       if (error.response?.data?.errors) {
-        errorMsg = error.response.data.errors.join(', ');
-      } else if (error.message.includes('500')) {
-        errorMsg = 'Server error. Please try again later.';
-      } else if (error.message.includes('Network Error')) {
-        errorMsg = 'Network connection issue. Please check your internet.';
+        errorMsg = error.response.data.errors.join(", ");
+      } else if (error.message.includes("500")) {
+        errorMsg = "Server error. Please try again later.";
+      } else if (error.message.includes("Network Error")) {
+        errorMsg = "Network connection issue. Please check your internet.";
       }
-      
+
       showNotification(errorMsg, "error");
     } finally {
       setIsSubmitting(false);
@@ -421,7 +467,7 @@ const EmergencyCyberHelpPage = () => {
     setNotification({
       open: true,
       message,
-      severity
+      severity,
     });
   };
 
@@ -433,12 +479,12 @@ const EmergencyCyberHelpPage = () => {
       incidentType: "",
       email: "",
       contactNumber: "",
-      description: ""
+      description: "",
     });
   };
 
   const handleCloseNotification = () => {
-    setNotification(prev => ({ ...prev, open: false }));
+    setNotification((prev) => ({ ...prev, open: false }));
   };
 
   const handleRequestCyberPoliceHelp = () => {
@@ -510,7 +556,14 @@ const EmergencyCyberHelpPage = () => {
           }}
         >
           <CardContent sx={{ mt: -3 }}>
-            <h2 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "10px", color: "#fff" }}>
+            <h2
+              style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                marginBottom: "10px",
+                color: "#fff",
+              }}
+            >
               Report an Incident
             </h2>
 
@@ -541,13 +594,15 @@ const EmergencyCyberHelpPage = () => {
                 type="email"
                 required
                 sx={textFieldStyles}
-                value="darsanits9781@gmail.com"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 error={!!formErrors.email}
                 helperText={formErrors.email}
                 InputProps={{
                   style: { color: "#fff" },
-                  startAdornment: <EmailIcon sx={{ color: "#fff", mr: 1, fontSize: 20 }} />,
+                  startAdornment: (
+                    <EmailIcon sx={{ color: "#fff", mr: 1, fontSize: 20 }} />
+                  ),
                 }}
               />
 
@@ -561,7 +616,9 @@ const EmergencyCyberHelpPage = () => {
                 helperText={formErrors.contactNumber}
                 InputProps={{
                   style: { color: "#fff" },
-                  startAdornment: <PhoneIcon sx={{ color: "#fff", mr: 1, fontSize: 20 }} />,
+                  startAdornment: (
+                    <PhoneIcon sx={{ color: "#fff", mr: 1, fontSize: 20 }} />
+                  ),
                 }}
               />
 
@@ -577,13 +634,13 @@ const EmergencyCyberHelpPage = () => {
                 helperText={formErrors.description}
                 InputProps={{ style: { color: "#fff" } }}
                 inputProps={{
-                  maxLength: MAX_DESCRIPTION_LENGTH
+                  maxLength: MAX_DESCRIPTION_LENGTH,
                 }}
                 FormHelperTextProps={{
                   sx: {
-                    textAlign: 'right',
-                    marginLeft: 0
-                  }
+                    textAlign: "right",
+                    marginLeft: 0,
+                  },
                 }}
               />
 
@@ -629,15 +686,15 @@ const EmergencyCyberHelpPage = () => {
           </div>
         )}
 
-        <CyberPoliceModal 
-          open={cyberPoliceModalOpen} 
+        <CyberPoliceModal
+          open={cyberPoliceModalOpen}
           onClose={() => setCyberPoliceModalOpen(false)}
           actions={cyberPoliceActions}
           phone={CYBER_POLICE_PHONE}
           onHelpRequest={handleRequestCyberPoliceHelp}
         />
 
-        <ConfirmationModal 
+        <ConfirmationModal
           open={confirmationModalOpen}
           phone={CYBER_POLICE_PHONE}
         />
