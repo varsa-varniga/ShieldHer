@@ -88,7 +88,7 @@ export default function LandingPage() {
                             color="primary"
                             sx={{ fontWeight: 600 }}
                             component={Link}
-                            to="/demo"
+                            to="/login"
                         >
                             See How It Works
                         </Button>
