@@ -15,7 +15,7 @@ import {
     Chip,
     Grid
 } from '@mui/material';
-import banner from "../assets/banner.jpg"
+import bannerImage from "../assets/bannerImage.jpg"
 import { testimonials } from '../data/testimonial'
 import { faqs } from '../data/faqs'
 import { features } from '../data/features'
@@ -96,12 +96,12 @@ export default function LandingPage() {
                 </Container>
                 <div className="mt-5">
                     <img
-                        src={banner}
+                        src={bannerImage}
                         alt="Dashboard Preview"
                         style={{ borderRadius: '6px', marginTop: '50px' }}
                         className="rounded-lg shadow-2xl mx-auto w-full max-w-4xl"
-                        width={950}
-                        height={620}
+                        width={1150}
+                        height={720}
                     />
                 </div>
             </HeroSection>
