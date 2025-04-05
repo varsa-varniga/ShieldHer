@@ -41,6 +41,7 @@ import {
 } from "@mui/icons-material";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import FirewallRules from "./firewall";
 
 // Custom theme configuration
 const theme = createTheme({
@@ -1129,6 +1130,7 @@ const SecurityDashboard = () => {
               </CardContent>
             </Card>
           </Grid>
+          <FirewallRules threats={actualThreats} />
         </Grid>
       </Box>
       <EmailAuthModal
